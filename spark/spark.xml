@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd">
+
+<DatabaseProfile
+        desc="Profile for Apache Spark"
+        extends="generic">
+
+
+</DatabaseProfile>

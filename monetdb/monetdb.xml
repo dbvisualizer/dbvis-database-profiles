@@ -1,0 +1,1120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd">
+
+<DatabaseProfile
+        desc="Profile for MonetDB"
+        version="$Revision: 1 $"
+        date="$Date: 2015-04-13 15:47:52 +0200 (Lör, 11 Okt 2014) $"
+        minver="11.19.9"
+        extends="generic">
+
+
+	<!-- =================================================================== -->
+	<!-- Definition of the commands -->
+	<!-- =================================================================== -->
+
+	<Commands extends="true">
+		
+		<Command id="monetdb.getSchemas">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.schemas
+					ORDER BY name;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getTables">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.tables
+					WHERE type = 0 AND schema_id = ${schema_id}
+					ORDER BY name;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getViews">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.tables
+					WHERE type = 1 AND schema_id = ${schema_id}
+					ORDER BY name;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getViewDefinition">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.tables
+					WHERE type = 1 AND schema_id = ${schema_id} and id = ${view_id};
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getColumns">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.columns
+					WHERE table_id = ${table_id}
+					ORDER BY number, id, name;
+				]]>
+			</SQL>
+		</Command>
+		
+		
+		
+		
+		<Command id="monetdb.getIndexes">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.idxs
+					WHERE table_id = ${table_id}
+					ORDER BY name;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getTriggers">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.triggers
+					WHERE table_id = ${table_id}
+					ORDER BY name;
+				]]>
+			</SQL>
+		</Command>
+		
+		
+		
+		
+		
+		
+		
+		
+		<Command id="monetdb.getSequences">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.sequences
+					WHERE schema_id = ${schema_id}
+					ORDER BY name;
+				]]>
+			</SQL>
+		</Command>
+		
+		
+		<Command id="monetdb.getSequence">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.sequences
+					WHERE schema_id = ${schema_id} AND id = ${sequence_id}
+				]]>
+			</SQL>
+		</Command>
+		
+		
+		<Command id="monetdb.getAuths">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.auths;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getUsers">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.users;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getUserRole">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.user_role;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getPrivileges">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.privileges;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getSessions">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.sessions;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getQueue">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.queue;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getOptimizers">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.optimizers;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getStorageFull">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.storage
+					WHERE "schema" LIKE '${schema_name}' AND "table" LIKE '${table_name}'
+					ORDER BY "schema", "table", "column";
+					;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getEnvironment">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.environment;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getTypes">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.types;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getQuerylogCatalog">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.querylog_catalog
+					ORDER BY "defined" DESC;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getQuerylogCalls">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.querylog_calls
+					ORDER BY "start" DESC, "stop" DESC;
+				]]>
+			</SQL>
+		</Command>
+		
+		<Command id="monetdb.getQuerylogHistory">
+			<SQL>
+				<![CDATA[
+					SELECT * FROM sys.querylog_history
+					ORDER BY "defined" DESC, "start" DESC, "stop" DESC;
+				]]>
+			</SQL>
+		</Command>
+		
+		
+		
+	</Commands>
+	
+	
+	
+	
+	
+	<!-- =================================================================== -->
+	<!-- Definition of the object actions that are used by the tree and views -->
+	<!-- =================================================================== -->
+
+	<ObjectsActionDef extends="false">
+		
+		<ActionGroup type="Schemas">
+			<Action id="monetdb-schemas-create-schema" label="Create Schema" reload="true" icon="add">
+				<Input label="Schema" name="newschema" style="text" editable="true"/>
+				<Command>
+					<SQL><![CDATA[CREATE SCHEMA "${newschema}"]]></SQL>
+				</Command>
+				<Confirm>
+					Really create new schema ${schema}?
+				</Confirm>
+			</Action>
+		</ActionGroup>
+		
+		
+		<ActionGroup type="Schema">
+			<Action id="monetdb-schema-drop-schema" label="Drop Schema" reload="true" icon="remove">
+				<Input label="Schema" style="text" editable="false">
+					<Default>${schema}</Default>
+				</Input>
+				<Command>
+					<SQL><![CDATA[DROP SCHEMA "${schema}"]]></SQL>
+				</Command>
+				<Confirm>
+					Really drop schema ${schema} recursive?
+				</Confirm>
+			</Action>
+		</ActionGroup>
+		
+		
+		<ActionGroup type="Tables">
+			<Action id="monetdb-tables-create-table" label="Create Table"
+					icon="add" reload="true"
+					class="tableCreateOrAlter"
+					classargs="create" />
+			<Action id="monetdb-new-table-import-data"
+					label="Import Table Data"
+					icon="import"
+					class="tableDataImport" />
+		</ActionGroup>
+		
+		
+		
+		
+		
+		
+		
+		<!-- ############################################## -->
+		
+		
+		
+		
+		
+		
+		
+		<ActionGroup type="Table">
+			
+			
+			
+			<Action id="monetdb-table-alter-table" label="Alter Table"
+					icon="edit" reload="true"
+					class="tableCreateOrAlter"
+					classargs="alter" />
+			
+			
+			
+			<Action id="monetdb-table-empty-table" label="Empty Table" reload="true" icon="leafnode">
+				<Input label="Schema" style="text" editable="false">
+					<Default>${schema}</Default>
+				</Input>
+				<Input label="Table" style="text" editable="false">
+					<Default>${objectname}</Default>
+				</Input>
+				<Input label="Use Command" name="useCommand" style="radio">
+					<Values>TRUNCATE|DELETE</Values>
+					<Default>DELETE</Default>
+				</Input>
+				
+				<SetVar name="_command" value="#useCommand.equals('TRUNCATE') ? 'TRUNCATE TABLE' : 'DELETE FROM'"/>
+				
+				<Command>
+					<SQL><![CDATA[${_command} "${schema}"."${objectname}"]]></SQL>
+				</Command>
+				<Confirm>
+					Really remove all rows in table ${schema}.${objectname}?
+				</Confirm>
+				<Result>
+					All rows in table ${schema}.${objectname} has been removed!
+				</Result>
+			</Action>
+			
+			
+			
+			<Action id="monetdb-table-drop-table" label="Drop Table" reload="true" icon="remove">
+				<Input label="Schema" style="text" editable="false">
+					<Default>${schema}</Default>
+				</Input>
+				<Input label="Table" style="text" editable="false">
+					<Default>${objectname}</Default>
+				</Input>            
+				<Input label="Drop Dependent Object(s)" name="cascade" style="check"
+				tip="Automatically drop objects that depend on the table (such as views)">
+					<Values>cascade</Values>
+				</Input>
+				<Command><SQL><![CDATA[drop table "${schema}"."${objectname}" ${cascade}]]></SQL></Command>
+				<Confirm>
+					Really drop table ${schema}.${objectname}?
+				</Confirm>
+				<Result>
+					Table ${schema}.${objectname} has been dropped!
+				</Result>
+			</Action>
+			
+			
+			
+			<Separator/>
+			
+			
+			
+			<Action id="monetdb-table-import-data" label="Import Table Data" icon="import"
+					class="tableDataImport"
+					doclink="http://www.dbvis.com/doclink/import-table"/>
+			
+			<Action id="monetdb-table-export" label="Export Table" icon="export"
+					class="tableExport"
+					doclink="http://www.dbvis.com/doclink/export-table"/>
+			
+			
+			
+			
+			<!--
+
+         <Action id="postgresql-table-create-index" label="Create Index" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Index Name" name="indexname" style="text"/>
+            <Input label="Unique" name="unique" style="check">
+               <Values>unique</Values>
+            </Input>
+
+            <Input label="Columns" style="separator"/>
+
+            <Input name="columns" style="grid">
+               <Arg name="output" value='"${columnname}"${_sortorder}'/>
+               <Arg name="newline" value=", "/>
+
+               <Input name="columnname" label="Column Name" style="list">
+                  <Values column="4">
+                     <Command idref="getColumnNamesFor">
+                        <Input name="table_catalog" value="${catalog}"/>
+                        <Input name="table_schema" value="${schema}"/>
+                        <Input name="table_name" value="${objectname}"/>
+                     </Command>
+                  </Values>
+                  <Default>${0}</Default>
+               </Input>
+               <Input name="sortorder" label="Sort Order" style="radio">
+                  <Labels>ASC|DESC|Default</Labels>
+                  <Values>ASC|DESC|</Values>
+                  <Default>ASC</Default>
+               </Input>
+               <SetVar name="_sortorder" value='#sortorder.equals("") ? "" : " " + #sortorder'/>
+            </Input>
+
+            <SetVar name="_unique" value='#unique.equals("") ? "" : " " + #unique'/>
+            <SetVar name="_columns" value='#columns.trim().equals("") ? "" : "(" + #columns + ")"'/>
+            <SetVar name="_indexname" value='#indexname.trim().equals("") ? "" : " \"" + #indexname + "\""'/>
+
+            <Command>
+               <SQL>
+                  <![CDATA[create${_unique} index${_indexname} on "${schema}"."${objectname}" ${_columns}]]>
+               </SQL>
+            </Command>
+            <Confirm>
+               <![CDATA[Create index "${indexname}"?]]>
+            </Confirm>
+            <Result>
+               <![CDATA[Index "${indexname}" created!]]>
+            </Result>
+         </Action>
+
+         <Action id="postgresql-tabletrigger-create" label="Create Trigger" icon="add" reload="true"
+                 doclink="http://www.dbvis.com/doclink/create-trigger">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Trigger" name="triggerName" style="text"/>
+            <Input label="Trigger Time" name="triggerTime" style="radio">
+               <Values>BEFORE|AFTER</Values>
+               <Default>AFTER</Default>
+            </Input>
+            <Input label="Trigger Event" name="eventDelete" style="check" linebreak="false">
+               <Values>DELETE</Values>
+               <Labels>DELETE</Labels>
+            </Input>
+            <Input label="" name="eventInsert" style="check">
+               <Values>INSERT</Values>
+               <Labels>INSERT</Labels>
+               <Default>INSERT</Default>
+            </Input>
+            <Input label="" name="eventUpdate" style="check" linebreak="true">
+               <Values>UPDATE</Values>
+               <Labels>UPDATE</Labels>
+            </Input>
+            <Input label="Trigger Type" name="triggerType" style="radio">
+               <Values>STATEMENT|ROW</Values>
+               <Default>STATEMENT</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Source" style="separator"/>
+            <Input name="source" style="text-editor">
+               <Default><![CDATA[
+
+    EXECUTE PROCEDURE "RI_FKey_cascade_del"()]]>
+               </Default>
+            </Input>
+
+            <SetVar name="_triggerEvent" value='#eventDelete'/>
+            <SetVar name="_triggerEvent" value='#_triggerEvent.length() > 0 and #eventInsert.length() > 0 ?
+                                                #_triggerEvent + " OR " + #eventInsert :
+                                                #_triggerEvent + #eventInsert'/>
+            <SetVar name="_triggerEvent" value='#_triggerEvent.length() > 0 and #eventUpdate.length() > 0 ?
+                                                #_triggerEvent + " OR " + #eventUpdate :
+                                                #_triggerEvent + #eventUpdate'/>
+
+            <Command parsesql="false">
+               <SQL><![CDATA[
+create trigger "${triggerName}"
+  ${triggerTime} ${_triggerEvent}
+  on "${schema}"."${objectname}"
+  for each ${triggerType}
+${source}]]>
+               </SQL>
+            </Command>
+            <Result>
+               <![CDATA[Trigger <b>${schema}.${triggerName}</b> created.]]>
+            </Result>
+         </Action>
+
+         <Separator/>
+		
+		
+			-->
+			
+			<Action id="monetdb-table-script" label="Script Table" icon="scriptObject"
+					class="sqlBuilder"
+					classargs="script-dialog,SELECT,SELECT *,INSERT,UPDATE,DELETE,CREATE,DROP"/>
+			
+		</ActionGroup>
+		
+		
+		
+		<!--
+		
+		
+      <ActionGroup type="Column">
+         <Action id="postgresql-column-comment" label="Comment Column" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="Table" style="text" editable="false">
+               <Default>${theTableName}</Default>
+            </Input>
+            <Input label="Column" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Comment" name="comment" style="text">
+               <Default>${getColumns.REMARKS}</Default>
+            </Input>
+            <Command>
+               <SQL><![CDATA[comment on column "${schema}"."${theTableName}"."${objectname}" is '${comment}']]></SQL>
+            </Command>
+            <Confirm>
+               Apply new comment on ${schema}.${theTableName}.${objectname}?
+            </Confirm>
+         </Action>
+      </ActionGroup>
+
+      <ActionGroup type="View">
+         <Action id="postgresql-view-drop" label="Drop View" reload="true" icon="remove">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>            
+            <Input label="Cascade" name="cascade" style="check">
+               <Values>cascade</Values>
+            </Input>
+            <Command><SQL><![CDATA[drop view "${schema}"."${objectname}" ${cascade}]]></SQL></Command>
+            <Confirm>
+               Really drop view ${schema}.${objectname}?
+            </Confirm>
+            <Result>
+               View ${schema}.${objectname} has been dropped!
+            </Result>
+         </Action>
+
+         <Action id="postgresql-view-rename" label="Rename View" reload="true" icon="rename">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="New View Name" name="newTable" style="text"/>
+            <Command>
+               <SQL><![CDATA[alter table "${schema}"."${objectname}" rename to "${newTable}"]]></SQL>
+            </Command>
+            <Confirm>
+               Confirm rename of ${schema}.${objectname} to ${newTable}?
+            </Confirm>
+            <Result>
+               View ${schema}.${objectname} renamed to ${newTable}!
+            </Result>
+         </Action>
+
+         <Action id="postgresql-view-comment" label="Comment View" reload="true">
+            <Input label="Schema" style="text" editable="false">
+               <Default>${schema}</Default>
+            </Input>
+            <Input label="View" style="text" editable="false">
+               <Default>${objectname}</Default>
+            </Input>
+            <Input label="Comment" name="comment" style="text">
+               <Default>${postgresql8.getViews.Comment}</Default>
+            </Input>
+            <Command>
+               <SQL><![CDATA[comment on view "${schema}"."${objectname}" is '${comment}']]></SQL>
+            </Command>
+            <Confirm>
+               Apply new comment on ${schema}.${objectname}?
+            </Confirm>
+         </Action>
+
+         <Action id="postgresql-view-export" label="Export View" icon="export"
+                 class="viewExport"
+                 doclink="http://www.dbvis.com/doclink/export-view"/>
+
+         <Separator/>
+
+         <Action id="postgresql-view-script" label="Script View" icon="scriptObject"
+                 class="sqlBuilder"
+                 classargs="script-dialog,SELECT,SELECT *,INSERT,UPDATE,DELETE,CREATE,DROP"/>
+      </ActionGroup>
+		
+		-->
+		
+		<!-- ############################################## -->
+		
+		
+	</ObjectsActionDef>
+	
+	
+	
+	
+	
+	<!-- =================================================================== -->
+	<!-- Definition of the database objects tree structure -->
+	<!-- PostgreSQL only allows browsing default database specified in the -->
+	<!-- URL. This definition simply makes non default databases  -->
+	<!-- e.g catalogs as leaf nodes. -->
+	<!-- All nodes below the default database is listed as owner.object -->
+	<!-- =================================================================== -->
+
+	<ObjectsTreeDef extends="false">
+		
+		
+		
+		<GroupNode type="Databases" label="Databases">
+			<DataNode type="Database" label="${getCatalogs.TABLE_CAT}" drop-label-not-equal="${dbvis-defaultCatalogOrSchema}">
+			<SetVar name="database" value="${getCatalogs.TABLE_CAT}"/>
+				<Command idref="getCatalogs">
+					<Filter>
+						<Column index="TABLE_CAT" name="Name"/>
+					</Filter>
+				</Command>
+				
+				<GroupNode type="Schemas" label="Schemas">
+					<DataNode type="Schema" label="${monetdb.getSchemas.name}">
+						<SetVar name="schema" value="${monetdb.getSchemas.name}"/>
+						<SetVar name="schema_name" value="${monetdb.getSchemas.name}"/>
+						<SetVar name="schema_id" value="${monetdb.getSchemas.id}"/>
+						<Command idref="monetdb.getSchemas"/>
+						
+						<GroupNode type="Tables" label="Tables">
+							<DataNode type="Table" label="${monetdb.getTables.name}">
+								<SetVar name="objectname" value="${monetdb.getTables.name}"/>
+								<SetVar name="table" value="${monetdb.getTables.name}"/>
+								<SetVar name="table_name" value="${monetdb.getTables.name}"/>
+								<SetVar name="table_id" value="${monetdb.getTables.id}"/>
+								<Command idref="monetdb.getTables">
+									<Input name="schema_id" value="${schema_id}"/>
+								</Command>
+								
+								
+								<GroupNode type="Columns" label="Columns">
+								   <DataNode type="Column" label="${getColumns.COLUMN_NAME}   (${getColumns.TYPE_NAME})" isLeaf="true">
+									  <SetVar name="objectname" value="${getColumns.COLUMN_NAME}"/>
+									  <Command idref="getColumns">
+										 <Input name="catalog" value="${catalog}"/>
+										 <Input name="schema" value="${schema}"/>
+										 <Input name="objectname" value="${table_name}"/>
+										 <Filter>
+											<Column index="COLUMN_NAME" name="Name"/>
+										 </Filter>
+									 </Command>
+								   </DataNode>
+								</GroupNode>
+								
+								
+								<GroupNode type="Indexes" label="Indexes">
+									<DataNode type="Index" label="${monetdb.getIndexes.name}" isLeaf="true">
+										<SetVar name="objectname" value="${monetdb.getIndexes.name}"/>
+										<Command idref="monetdb.getIndexes">
+											<Input name="table_id" value="${table_id}"/>
+										</Command>
+									</DataNode>
+								</GroupNode>
+								
+								
+								<GroupNode type="Triggers" label="Triggers">
+									<DataNode type="Trigger" label="${monetdb.getTriggers.name}" isLeaf="true">
+										<SetVar name="objectname" value="${monetdb.gettriggers.name}"/>
+										<Command idref="monetdb.getTriggers">
+											<Input name="table_id" value="${table_id}"/>
+										</Command>
+									</DataNode>
+								</GroupNode>
+								
+								
+								
+							</DataNode>
+						</GroupNode>
+						
+						
+						<GroupNode type="Views" label="Views">
+							<DataNode type="View" label="${monetdb.getViews.name}" isLeaf="true">
+								<SetVar name="objectname" value="${monetdb.getViews.name}"/>
+								<SetVar name="view" value="${monetdb.getViews.name}"/>
+								<SetVar name="view_id" value="${monetdb.getViews.id}"/>
+								<Command idref="monetdb.getViews">
+									<Input name="schema_id" value="${schema_id}"/>
+								</Command>
+							</DataNode>
+						</GroupNode>
+						
+						
+						
+						
+						<GroupNode type="Sequences" label="Sequences" icon="sequences">
+							<DataNode type="Sequence" label="${monetdb.getSequences.name}" isLeaf="true">
+								<SetVar name="objectname" value="${monetdb.getSequences.name}"/>
+								<SetVar name="sequence" value="${monetdb.getSequences.name}"/>
+								<SetVar name="sequence_id" value="${monetdb.getSequences.id}"/>
+								<Command idref="monetdb.getSequences">
+									<Input name="schema_id" value="${schema_id}"/>
+								</Command>
+							</DataNode>
+						</GroupNode>
+						
+						
+						
+						
+					</DataNode>
+				</GroupNode>
+				
+			</DataNode>
+		</GroupNode>
+		
+		
+		
+		<GroupNode type="DBA" label="DBA Views">
+			
+			<GroupNode type="Auths" label="Auths" icon="osusers" isLeaf="true"/>
+			
+			<GroupNode type="Users" label="Users" icon="user" isLeaf="true"/>
+			
+			<GroupNode type="UserRole" label="User_Role" icon="group" isLeaf="true"/>
+			
+			<GroupNode type="Privileges" label="Privileges" icon="propsproxy" isLeaf="true"/>
+			
+			<GroupNode type="Sessions" label="Sessions" icon="nickname" isLeaf="true"/>
+			
+			<GroupNode type="Queue" label="Queue" icon="udxfilter" isLeaf="true"/>
+			
+			<GroupNode type="Optimizers" label="Optimizers" icon="star" isLeaf="true"/>
+			
+			<GroupNode type="Storage" label="Storage" icon="storage" isLeaf="true">
+				<SetVar name="schema_name" value="%"/>
+				<SetVar name="table_name" value="%"/>
+			</GroupNode>
+			
+			<GroupNode type="Environment" label="Environment" icon="projection" isLeaf="true"/>
+			
+			<GroupNode type="Types" label="Data Types" icon="partition" isLeaf="true"/>
+			
+			<GroupNode type="QuerylogCatalog" label="Querylog Catalog" icon="propssqlhistory" isLeaf="true"/>
+			
+			<GroupNode type="QuerylogCalls" label="Querylog Calls" icon="propssqlhistory" isLeaf="true"/>
+			
+			<GroupNode type="QuerylogHistory" label="Querylog History" icon="propssqlhistory" isLeaf="true"/>
+			
+			<!--
+			<GroupNode type="Users" label="Users">
+				<DataNode type="User" label="${postgresql.getUsers.usename}" isLeaf="true">
+					<SetVar name="objectname" value="${postgresql.getUsers.usename}"/>
+					<Command idref="postgresql.getUsers"/>
+				</DataNode>
+			</GroupNode>
+			<GroupNode type="Groups" label="Groups">
+				<DataNode type="Group" label="${postgresql.getGroups.groname}" isLeaf="true">
+					<SetVar name="objectname" value="${postgresql.getGroups.groname}"/>
+					<Command idref="postgresql.getGroups"/>
+				</DataNode>
+			</GroupNode>
+			<GroupNode type="Settings" label="Settings" isLeaf="true"/>
+			<GroupNode type="Locks" label="Locks" isLeaf="true"/>
+			<GroupNode type="Sessions" label="Sessions" isLeaf="true"/>
+			-->
+		</GroupNode>
+	
+	</ObjectsTreeDef>
+	
+	
+	
+	
+	
+	
+	
+	<!-- =================================================================== -->
+	<!-- Definition of the database objects views -->
+	<!-- =================================================================== -->
+	
+	<ObjectsViewDef extends="false">
+		
+		
+		<ObjectView type="Databases">
+			
+			<DataView id="generic-databases-databases" label="Databases (JDBC)" viewer="grid">
+				<Command idref="getCatalogNames"/>
+			</DataView>
+			
+		</ObjectView>
+		
+		
+		
+		<ObjectView type="Database">
+			
+			
+			<DataView id="generic-database-tables" icon="Tables" label="Tables (JDBC)" viewer="grid">
+				<Input name="menuItem" value="Open in New Tab...">
+					<Input name="action" value="open-object-in-new-tab-command ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Input name="menuItem" value="Open in Floating Tab...">
+					<Input name="action" value="open-object-in-floating-tab-command ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Input name="menuItem" value="Script: SELECT ALL">
+					<Input name="command" value="select * from ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Input name="menuItem" value="Script: DROP TABLE">
+					<Input name="command" value="drop table ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Command idref="getTables">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="%"/>
+					<Input name="tableType" value="${tableType}"/>
+				</Command>
+			</DataView>
+			
+			
+		</ObjectView>
+		
+		
+		<ObjectView type="Schemas">
+			
+			<DataView id="monetdb-schemas-schemas" icon="Schemas" label="Schemas (SQL)" viewer="grid">
+				<Command idref="monetdb.getSchemas"/>
+			</DataView>
+			
+			<DataView id="generic-schemas-schemas" icon="Schemas" label="Schemas (JDBC)" viewer="grid">
+				<Command idref="getSchemaNames" />
+			</DataView>
+			
+			
+		</ObjectView>
+		
+		
+		
+		<ObjectView type="Schema">
+			
+			
+			<DataView id="monetdb-schema-storage" label="Storage" viewer="grid">
+				<Command idref="monetdb.getStorageFull">
+					<Input name="schema_name" value="${schema_name}"/>
+					<Input name="table_name" value="%"/>
+				</Command>
+			</DataView>
+			
+			
+		</ObjectView>
+		
+		
+		
+		<ObjectView type="Tables">
+			
+			
+			<DataView id="monetdb-tables-tables" icon="Tables" label="Tables (SQL)" viewer="grid">
+				<Command idref="monetdb.getTables">
+					<Input name="schema_id" value="${schema_id}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-tables-tables" icon="Tables" label="Tables (JDBC)" viewer="grid">
+				<Input name="menuItem" value="Open in New Tab...">
+					<Input name="action" value="open-object-in-new-tab-command ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Input name="menuItem" value="Open in Floating Tab...">
+					<Input name="action" value="open-object-in-floating-tab-command ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Input name="menuItem" value="Script: SELECT ALL">
+					<Input name="command" value="select * from ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Input name="menuItem" value="Script: DROP TABLE">
+					<Input name="command" value="drop table ${schema||TABLE_SCHEM}${object||TABLE_NAME}"/>
+				</Input>
+				<Command idref="getTables">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="%"/>
+					<Input name="tableType" value="${tableType}"/>
+				</Command>
+			</DataView>
+			
+			
+		</ObjectView>
+		
+		
+		
+		
+		<ObjectView type="Table">
+			
+			
+			<DataView id="generic-table-info" icon="Info" label="Info" viewer="node-form"/>
+			
+			
+			<DataView id="monetdb-table-storage" label="Storage" viewer="grid">
+				<Command idref="monetdb.getStorageFull">
+					<Input name="schema_name" value="${schema_name}"/>
+					<Input name="table_name" value="${table_name}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-table-columns" icon="Columns" label="Columns" viewer="grid">
+				<Command idref="getColumns">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="${objectname}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-table-data" icon="Data" label="Data" viewer="table-data"/>
+			
+			
+			<DataView id="generic-table-rowcount" icon="RowCount" label="Row Count" viewer="table-rowcount"/>
+			
+			
+			<DataView id="generic-table-primarykey" icon="PrimaryKey" label="Primary Key" viewer="grid">
+				<Command idref="getPrimaryKeys">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="${objectname}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-table-indexes" icon="Index" label="Indexes" viewer="grid">
+				<Command idref="getIndexes">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="${objectname}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-table-grants" icon="TablePrivileges" label="Grants" viewer="grid">
+				<Command idref="getPrivileges">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="${objectname}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-table-rowid" icon="RowId" label="Row Id" viewer="grid">
+				<Command idref="getBestRowIdentifier">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="${objectname}"/>
+				</Command>
+			</DataView>
+         
+			
+		</ObjectView>
+		
+		
+		
+		
+		
+		
+		<ObjectView type="Columns">
+			
+			
+			<DataView id="monetdb-columns-columns" icon="Columns" label="Columns (SQL)" viewer="grid">
+				<Command idref="monetdb.getColumns">
+					<Input name="table_id" value="${table_id}"/>
+				</Command>
+			</DataView>
+			
+			
+			<DataView id="generic-columns-columns" icon="Columns" label="Columns (JDBC)" viewer="grid">
+				<Command idref="getColumns">
+					<Input name="catalog" value="${catalog}"/>
+					<Input name="schema" value="${schema}"/>
+					<Input name="objectname" value="${table_name}"/>
+				</Command>
+			</DataView>
+			
+			
+		</ObjectView>
+		
+		
+		
+		<ObjectView type="Column">
+			
+			<DataView id="generic-column-column" icon="Column" label="Column" viewer="node-form"/>
+			
+		</ObjectView>
+		
+		
+		<ObjectView type="Sequences">
+			
+			<DataView id="monetdb-sequences-sequences" icon="Sequences" label="Sequences" viewer="grid">
+				<Command idref="monetdb.getSequences">
+					<Input name="schema_id" value="${schema_id}"/>
+				</Command>
+			</DataView>
+			
+		</ObjectView>
+		
+		
+		<ObjectView type="Sequence">
+			
+			<DataView id="monetdb-sequence-sequence" icon="Sequences" label="Sequence" viewer="node-form">
+				<Command idref="monetdb.getSequence">
+					<Input name="schema_id" value="${schema_id}"/>
+					<Input name="schema_id" value="${sequence_id}"/>
+				</Command>
+			</DataView>
+			
+		</ObjectView>
+		
+		
+		<ObjectView type="Views">
+			<DataView id="monetdb-views-views" icon="Views" label="Views (SQL)" viewer="grid">
+				<Command idref="monetdb.getViews">
+					<Input name="schema_id" value="${schema_id}"/>
+				</Command>
+			</DataView>
+		</ObjectView>
+		
+		
+		<ObjectView type="View">
+			<DataView id="monetdb-view-definition" label="Definition" viewer="text">
+				<Input name="dataColumn" value="query"/>
+				<Input name="formatSQL" value="true"/>
+				<Command idref="monetdb.getViewDefinition">
+					<Input name="schema_id" value="${schema_id}"/>
+					<Input name="view_id" value="${view_id}"/>
+				</Command>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Auths">
+			<DataView id="monetdb-auths" label="Auths" viewer="grid">
+				<Command idref="monetdb.getAuths"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Users">
+			<DataView id="monetdb-users" label="Users" viewer="grid">
+				<Command idref="monetdb.getUsers"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="UserRole">
+			<DataView id="monetdb-userrole" label="User_Role" viewer="grid">
+				<Command idref="monetdb.getUserRole"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Privileges">
+			<DataView id="monetdb-privileges" label="Privileges" viewer="grid">
+				<Command idref="monetdb.getPrivileges"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Sessions">
+			<DataView id="monetdb-sessions" label="Sessions" viewer="grid">
+				<Command idref="monetdb.getSessions"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Queue">
+			<DataView id="monetdb-queue" label="Queue" viewer="grid">
+				<Command idref="monetdb.getQueue"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Optimizers">
+			<DataView id="monetdb-optimizers" label="Optimizers" viewer="grid">
+				<Command idref="monetdb.getOptimizers"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Storage">
+			<DataView id="monetdb-storage-full" label="Storage" viewer="grid">
+				<Command idref="monetdb.getStorageFull">
+					<Input name="schema_name" value="%"/>
+					<Input name="table_name" value="%"/>
+				</Command>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Environment">
+			<DataView id="monetdb-environment" label="Environment" viewer="grid">
+				<Command idref="monetdb.getEnvironment"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="Types">
+			<DataView id="monetdb-types" label="Data Types" viewer="grid">
+				<Command idref="monetdb.getTypes"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="QuerylogCatalog">
+			<DataView id="monetdb-querylog-catalog" label="Querylog Catalog" viewer="grid">
+				<Command idref="monetdb.getQuerylogCatalog"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="QuerylogCalls">
+			<DataView id="monetdb-querylog-calls" label="Querylog Calls" viewer="grid">
+				<Command idref="monetdb.getQuerylogCalls"/>
+			</DataView>
+		</ObjectView>
+		
+		<ObjectView type="QuerylogHistory">
+			<DataView id="monetdb-querylog-history" label="Querylog History" viewer="grid">
+				<Command idref="monetdb.getQuerylogHistory"/>
+			</DataView>
+		</ObjectView>
+		
+		
+		
+		
+	</ObjectsViewDef>
+	
+	
+	
+</DatabaseProfile>
